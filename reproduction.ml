@@ -1,13 +1,22 @@
 
-
-let gen_seed (n : Nsp.seed) (shifts : int) (ctr : int) : Nsp.seed =
+let gen_seed (inst : Nsp.nspi) (n : Nsp.seed) : Nsp.seed =
   let ni = Nsp.copy n in
-  let i = Random.int ni.n in
-  let j = Random.int ni.d in
-  Array.set ni.(i) j (((Random.int shifts) * ctr + 1) mod shifts);
-  ni in
+  let i = Random.int inst.n in
+  let j = Random.int inst.d in
+  Array.set ni.sch.(i) j ((Random.int inst.s));
+  ni
 
-let reproduce (shifts : int) (k : int) (parent : Nsp.seed) : Nsp.seed list =
-  List.init k (gen_seed parent shifts) in
+let rec gen_seed_k (inst : Nsp.nspi) (k : int) (n : Nsp.seed) : Nsp.seed =
+  if k = 0 then n else gen_seed_k inst (k-1) (gen_seed inst n)
 
-let random_population (inst : Nsp.nspi) (n : int) : Nsp.seed list =
+let reproduce (inst : Nsp.nspi) (seed : Nsp.seed) (n : int) (k : int) =
+  Array.map (gen_seed_k inst k) (Array.make n seed)
+
+let random_seed (inst : Nsp.nspi) : Nsp.seed =
+  let m = Array.map (Array.map (Random.int)) (Array.make inst.n (Array.make inst.d inst.s))in
+  {sch=m; fit= ref 0.0}  
+
+let random_population (inst : Nsp.nspi) (n : int) : Nsp.seed array =
+  let m = (Array.make n inst) in
+  (Array.map random_seed m )
+
