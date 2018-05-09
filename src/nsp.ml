@@ -27,13 +27,15 @@ let readFile (fname : string) : nspi =
     done
   done;
   ignore (input_line f);
-  let preference = Array.make ns (Array.make (ds*ss) 0) in (*Preference matrix*)
+  let preference = Array.make_matrix ns (ds*ss) 0 in (*Preference matrix*)
   for i=0 to ns - 1 do
     let lin = Str.global_replace re "" (input_line f) in 
     let line = String.sub lin 0 ((String.length lin) - 1) in
+    (*print_endline line;*)
     let tmp = Array.of_list (List.map int_of_string (String.split_on_char '\t' line)) in
-    Array.blit tmp 0 (preference.(i)) 0 (ds*ss);
-    
+    for j=0 to ds*ss - 1 do
+      Array.set preference.(i) j tmp.(j)
+    done
   done;
 
   let mf = (4.0 *. float_of_int (ns*ds)) *. !ack in
