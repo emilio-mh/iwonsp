@@ -23,18 +23,18 @@ let random_population (inst : Nsp.nspi) (n : int) : Nsp.seed array =
 let sweep (inst : Nsp.nspi) (s : Nsp.seed) : Nsp.seed = 
   let ni = Nsp.copy s in
   let maxfit = ref s.fit in
-  let maxseed = ref (Nsp.copy s) in
+  let maxseed = ref (Nsp.copy ni) in
   let improve = ref true in
   while !improve do
     improve := false;
     for n = 0 to inst.n - 1 do
       for d = 0 to inst.d - 1 do
         let tmp = ni.sch.(n).(d) in
-        for s = 0 to inst.s - 1 do        
+        for s = 0 to inst.s - 1 do       
           Array.set ni.sch.(n) d s;
           let nf = Evaluation.cost inst ni.sch in
           if nf < !maxfit then
-            (maxseed := Nsp.copy ni; maxfit := nf; improve := true; print_float nf; print_newline ())
+            (maxseed := Nsp.copy ni; maxfit := nf; improve := true)
           else ()
         done;
         Array.set ni.sch.(n) d tmp

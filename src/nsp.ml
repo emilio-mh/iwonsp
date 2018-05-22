@@ -4,7 +4,7 @@ type seed = {sch : int array array; fit : float}
 let re = Str.regexp "[\r\n]" 
 
 let copy (s : seed) : seed = 
-  {sch=(Array.copy s.sch); fit= 0.0}
+  {sch=(Array.map Array.copy s.sch); fit= 0.0}
 
 let readFile (fname : string) : nspi = 
 

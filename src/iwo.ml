@@ -9,20 +9,27 @@ let iwo inst (par : params) =
   let reproduce = Reproduction.reproduce inst in
   let pop = Reproduction.random_population inst par.maxpop in
   let newpop = Array.copy pop in
+  let mx = ref Pervasives.max_float in
   Array.sort (Evaluation.compare inst) newpop;
   let k = ref (par.dist_i) in
   for r = 0 to par.reps - 1 do
     for i = 0 to par.maxit do
-      Printf.printf "%d / %d  \r" (i + par.maxit*r) (par.maxit*par.reps);
-      flush stdout;
       for j=0 to (Array.length pop) - 1 do
         let p1 = reproduce pop.(j) par.rf !k in
         Array.sort (Evaluation.compare inst) p1;
-        Array.blit (Array.of_list (List.merge (Evaluation.compare inst) (Array.to_list newpop) (Array.to_list (p1)))) 0 newpop 0 par.maxpop
+        let rr = (Array.of_list (List.merge (Evaluation.compare inst) (Array.to_list newpop) (Array.to_list (p1)))) in
+        for u=0 to par.maxpop - 1 do
+          Array.set newpop u rr.(u)
+        done
+        
       done;
       k := ((par.dist_f - par.dist_i) * i / (par.maxit)) + par.dist_i;
-      Array.blit newpop 0 pop 0 par.maxpop
-      prerr_float pop.(0).fit;
-      prerr_newline ();
+      for u=0 to par.maxpop - 1 do
+        Array.set pop u (newpop.(u))
+      done;
+      if pop.(0).fit < !mx then 
+      (Printf.printf "%d, %f\n" !k pop.(0).fit;
+      mx := pop.(0).fit;
+      flush stdout);
     done
   done; pop
